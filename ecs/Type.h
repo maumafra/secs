@@ -1,6 +1,12 @@
+#ifndef TYPE_H
+#define TYPE_H
+
 #include "definitions.h"
+#include "datastructures/hash.h"
 
 typedef struct {
-    ComponentId *ids;       /* Array with components ids */
-    int32_t count;          /* Num of elements in array */
+    std::vector<ComponentId> ids;       /* Array with components ids */
+    int32_t count;                      /* Num of elements in array */
 } Type;
+
+#endif

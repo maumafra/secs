@@ -1,23 +1,32 @@
-#include <cstdint>
-
 #include "definitions.h"
 
-struct Column {
-    void* data;                 /* Array with component data */
-    size_t data_size;           /* Size of the component data */
+struct ColumnBase {
+    virtual ~ColumnBase() = default;
+};
+
+template<typename T>
+struct Column : ColumnBase {
+    std::vector<T> data;            /* Array with component data */
+    size_t size() const override {  /* Size of the component data */
+        return data.size();
+    }           
 };
 
 // Table === Archetype
 struct Table {
-    uint32_t id;                /* Table id */
-    uint32_t row_count;         /* Number of entities */
-    uint32_t column_count;      /* Number of components */
+    uint32_t id;                                            /* Table id */
 
-    ComponentId *type;          /* Components ids */
-    EntityId *entities;         /* Entity ids */
-    Column *columns;            /* Component data */
+    std::vector<ComponentId> type;                          /* Components ids */
+    std::vector<EntityId> entities;                         /* Entity ids */
+    std::vector<ColumnBase*> columns;             /* Component data */
 
     //unordered_map<ComponentId, Table&> edges;
+
+    ~Table() {
+        for (ColumnBase* c : columns) {
+            delete c;
+        }
+    };
 };
 
 //struct TableEdge {

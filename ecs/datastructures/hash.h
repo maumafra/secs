@@ -1,3 +1,5 @@
+#ifndef WYHASH_H
+#define WYHASH_H
 // This is free and unencumbered software released into the public domain under The Unlicense (http://unlicense.org/)
 // main repo: https://github.com/wangyi-fudan/wyhash
 // author: 王一 Wang Yi <godspeed_china@yeah.net>
@@ -141,6 +143,8 @@ static inline uint64_t wyhash(const void *key, size_t len, uint64_t seed, const 
 //the default secret parameters
 static const uint64_t _wyp[4] = {0x2d358dccaa6c78a5ull, 0x8bb84b93962eacc9ull, 0x4b33a62ed433d4a3ull, 0x4d5a2da51de1aa47ull};
 
-uint64_t ecs_hash (void* data, uint32_t size) {
+uint64_t ecs_hash (const void* data, uint32_t size) {
     return wyhash(data, (uint64_t)(size), 0 , _wyp);
 }
+
+#endif

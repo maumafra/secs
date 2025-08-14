@@ -13,7 +13,10 @@ add_library(ecs_module STATIC
     ecs/datastructures/hash.h
     ecs/datastructures/hashmap.h
     ecs/datastructures/sparseset.h
+    ecs/Entity.cpp
     ecs/Entity.h
+    ecs/IdStorage.cpp
+    ecs/IdStorage.h
     ecs/Table.h
     ecs/TableFunctions.cpp
     ecs/Type.h
