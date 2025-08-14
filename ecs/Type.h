@@ -4,9 +4,13 @@
 #include "definitions.h"
 #include "datastructures/hash.h"
 
-typedef struct {
+#include <algorithm>
+
+typedef struct _ {
     std::vector<ComponentId> ids;       /* Array with components ids */
-    int32_t count;                      /* Num of elements in array */
+
+    _() {};
+    _(std::vector<ComponentId> t_ids) : ids(t_ids) {};
 } Type;
 
 #endif

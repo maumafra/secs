@@ -1,7 +1,6 @@
 #include "World.cpp"
 
 #include <iostream>
-#include <typeinfo>
 
 struct Pos {
     float x, y;

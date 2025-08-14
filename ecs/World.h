@@ -21,7 +21,7 @@ struct World {
     Entity& spawn();
 
     template <typename T>
-    Entity& addComponent(EntityId id, T t);
+    Entity& addComponent(EntityId id, T* t);
 
     Record* createRecord(EntityId entity, Table* table);
 
@@ -29,9 +29,9 @@ struct World {
 
     Table* createTable(const Type* type);
 
-    void saveTable(TypeHash typeHash, Table* table);
+    void World::saveTable(const Type* type, Table* table);
 
-    //bool hasComponent(EntityId entity, ComponentId component);
+    bool hasComponent(EntityId entity, ComponentId component);
     //void* getComponent(EntityId entity, ComponentId component);
     //void add(EntityId entity, ComponentId component);
 //
@@ -47,6 +47,7 @@ struct World {
     unordered_map<ComponentId, TableMap*> component_index;
 
     EntityIdIndex *entityIdIndex;
+    ComponentIdIndex *componentIdIndex;
 };
 
 #endif

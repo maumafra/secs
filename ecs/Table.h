@@ -18,7 +18,7 @@ struct Table {
 
     std::vector<ComponentId> type;                          /* Components ids */
     std::vector<EntityId> entities;                         /* Entity ids */
-    std::vector<ColumnBase*> columns;             /* Component data */
+    std::vector<ColumnBase*> columns;                       /* Component data */
 
     //unordered_map<ComponentId, Table&> edges;
 

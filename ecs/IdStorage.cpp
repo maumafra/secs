@@ -12,6 +12,18 @@ EntityId getNewId(EntityIdIndex *index) {
     return id;
 };
 
+template <typename T>
+ComponentId getNewId(T* c_type, ComponentIdIndex *index) {
+    ComponentId id = index->nextId ++;
+    index->typeIndex.insert({tipeid(c_type), id});
+    return id;
+};
+
+template <typename T>
+ComponentId getComponentId(T *c_type, ComponentIdIndex *index) {
+    return index->typeIndex[tipeid(c_type)];
+}
+
 void setIdUnalived(EntityIdIndex *index, EntityId id) {
     index->unalivedIds.insert(id);
 };

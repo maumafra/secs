@@ -24,12 +24,26 @@ Entity& World::spawn() {
 }
 
 template <typename T>
-Entity& World::addComponent(EntityId id, T t) {
+Entity& World::addComponent(EntityId id, T* t) {
     Record *r = this->entity_index[id];
     if(!r) {
         return nullptr; //Entity does not exist
     }
-
+    ComponentId c_id = getComponentId(t, this->componentIdIndex);
+    if(!c_id) {
+        c_id = getNewId(t, this->componentIdIndex);
+    }
+    if(this->hasComponent(id, c_id)) {
+        // Override component
+        return;
+    } //TODO if not check/create edges
+    // v This could be the move_entt func
+    Table *oldTable = r->table;
+    Type *oldType = oldTable->type;
+    Type *newType = getNewType(oldType, c_id);
+    Table* newTable = createTable(newType);
+    oldTable->entities.erase(id);
+    //get all the entity data in the table (columns) and move to the next table
     return nullptr;
 }
 
@@ -46,29 +60,33 @@ Table* World::getTable(const Type* type) {
     Table *t = this->table_index[h];
     if (!t) {
         t = this->createTable(type);
-        this->saveTable(h, t);
+        this->saveTable(type, t);
     }
     return t;
 }
 
 Table* World::createTable(const Type* type) {
     Table *t = new Table();
-    t->id = 0; //TODO: Work on this later
+    t->id = getNewId(this->entityIdIndex); //TODO: Work on this later
     t->type = type->ids;
     return t;
 }
 
-void World::saveTable(TypeHash typeHash, Table* table) {
-    table_index.insert({typeHash, table});
+void World::saveTable(const Type* type, Table* table) {
+    TypeHash th = 0;
+    if (type->ids.size() == 0) {
+        th = typeHash(type);
+    }
+    table_index.insert({th, table});
 }
 
-//bool World::hasComponent(EntityId entity, ComponentId component) {
-//    Record& record = entity_index[entity];
-//    Table& table = record.table;
-//
-//    ArchetypeMap& archetypeMap = component_index[component];
-//    return archetypeMap.count(table.id) != 0;
-//}
+bool World::hasComponent(EntityId entity, ComponentId component) {
+    Record *record = entity_index[entity];
+    Table *table = record->table;
+
+    TableMap *archetypeMap = component_index[component];
+    return archetypeMap->count(table->id) != 0;
+}
 //
 //void* World::getComponent(EntityId entity, ComponentId component) {
 //    Record& record = entity_index[entity];
