@@ -5,6 +5,7 @@
 #include "datastructures/hash.h"
 
 #include <algorithm>
+#include <iostream>
 
 typedef struct _ {
     std::vector<ComponentId> ids;       /* Array with components ids */
