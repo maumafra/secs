@@ -1,24 +1,44 @@
 #include "definitions.h"
 
-struct ColumnBase {
+#include <typeinfo>
+#include <memory>
+
+struct ColumnBase { // Type erasure struct
     virtual ~ColumnBase() = default;
+    virtual void moveData(ColumnBase *colToMoveTo, uint32_t entRow) = 0;
+    virtual ColumnBase* createClone() const = 0;
+    virtual void debug() const = 0;
 };
 
 template<typename T>
 struct Column : ColumnBase {
-    std::vector<T> data;            /* Array with component data */
-    size_t size() const override {  /* Size of the component data */
+    std::vector<T> data;                /* Array with component data */
+
+    size_t size() const {               /* Size of the component data */
         return data.size();
-    }           
+    }
+
+    void moveData(ColumnBase *colToMoveTo, uint32_t entRow) {
+        Column<T> *col = (Column<T>*)colToMoveTo;
+        col->data.emplace_back(this->data.at(entRow));
+        this->data.erase(this->data.begin() + entRow);
+    }
+
+    ColumnBase* createClone() const {   /* Function to create an empty clone (used in creating another table) */
+        return new Column<T>();
+    }
+
+    void debug() const {
+        std::cout << "This is a Column from type: " << typeid(T).name() << std::endl;
+    }
 };
 
 // Table === Archetype
 struct Table {
-    uint32_t id;                                            /* Table id */
-
-    std::vector<ComponentId> type;                          /* Components ids */
-    std::vector<EntityId> entities;                         /* Entity ids */
-    std::vector<ColumnBase*> columns;                       /* Component data */
+    TableId id;                             /* Table id */
+    Type type;                              /* Components ids */
+    std::vector<EntityId> entities;         /* Entity ids */
+    std::vector<ColumnBase*> columns;       /* Component data */
 
     //unordered_map<ComponentId, Table&> edges;
 

@@ -2,9 +2,8 @@
 
 #include <unordered_map>
 #include <typeinfo>
+#include <string>
 #include <set>
-
-using TypeInfoRef = std::reference_wrapper<const std::type_info>;
 
 struct EntityIdIndex {
     EntityId nextId;
@@ -12,12 +11,24 @@ struct EntityIdIndex {
 };
 
 struct ComponentIdIndex {
-    ComponentId nextId;
-    std::unordered_map<TypeInfoRef, ComponentId> typeIndex;
+    ComponentId nextId = 1;
+    std::unordered_map<std::string, ComponentId> typeIdIndex;
 };
 
 template <typename T>
-ComponentId getComponentId(T *t, ComponentIdIndex *index);
+inline ComponentId getNewId(ComponentIdIndex *index) {
+    ComponentId id = index->nextId ++;
+    index->typeIdIndex.insert({std::string(typeid(T).name()), id});
+    return id;
+};
+
+template <typename T>
+inline ComponentId getComponentId(ComponentIdIndex *index) {
+    if (index->typeIdIndex.count(std::string(typeid(T).name())) == 0) {
+        return 0;
+    }
+    return index->typeIdIndex[std::string(typeid(T).name())];
+};
 
 EntityId getNewId(EntityIdIndex *index);
 

@@ -2,7 +2,6 @@
 #define WORLD_H
 
 #include <unordered_map>
-#include <iostream>
 
 #include "TableFunctions.cpp"
 #include "TypeFunctions.cpp"
@@ -11,27 +10,45 @@
 
 using namespace std;
 
-using TableMap = unordered_map<uint32_t, TableRecord*>;
+using TableMap = unordered_map<TableId, TableRecord*>;
 
 struct World {
     World();
 
     void initWorld();
 
-    Entity& spawn();
+    EntityId spawn();
 
     template <typename T>
-    Entity& addComponent(EntityId id, T* t);
+    void addComponent(EntityId id, T t);
+
+    template <typename T>
+    T* getComponent(EntityId id);
 
     Record* createRecord(EntityId entity, Table* table);
 
-    Table* getTable(const Type* type);
+    Table* getTable(const Type type);
 
-    Table* createTable(const Type* type);
+    Table* createTable(const Type type, Table* oldTable) ;
 
-    void World::saveTable(const Type* type, Table* table);
+    void saveTable(const Type type, Table* table);
 
     bool hasComponent(EntityId entity, ComponentId component);
+
+    void moveTableComponents(const EntityId eId, const uint32_t entRow, Table* oldTable, Table* newTable);
+
+    bool tableHasComponent(ComponentId id, Table* table);
+
+    uint32_t getComponentColumn(ComponentId id, Table* table);
+
+    void saveComponentColumn(ComponentId id, Table* table, uint32_t index);
+
+    void saveComponentTable(ComponentId id, Table* table);
+
+    void rearrangeTableEntities(Table* table, const uint32_t idxStart);
+
+    void print();
+
     //void* getComponent(EntityId entity, ComponentId component);
     //void add(EntityId entity, ComponentId component);
 //
