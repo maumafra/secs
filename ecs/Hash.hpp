@@ -143,7 +143,7 @@ static inline uint64_t wyhash(const void *key, size_t len, uint64_t seed, const 
 //the default secret parameters
 static const uint64_t _wyp[4] = {0x2d358dccaa6c78a5ull, 0x8bb84b93962eacc9ull, 0x4b33a62ed433d4a3ull, 0x4d5a2da51de1aa47ull};
 
-uint64_t ecs_hash (const void* data, uint32_t size) {
+static inline uint64_t ecs_hash (const void* data, uint32_t size) {
     return wyhash(data, (uint64_t)(size), 0 , _wyp);
 }
 

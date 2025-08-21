@@ -1,4 +1,4 @@
-#include "IdStorage.h"
+#include "IdStorage.hpp"
 
 EntityId getNewId(EntityIdIndex *index) {
     if (index->unalivedIds.size() != 0) {

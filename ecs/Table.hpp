@@ -1,4 +1,4 @@
-#include "definitions.h"
+#include "Definitions.hpp"
 
 #include <typeinfo>
 #include <memory>
@@ -24,7 +24,7 @@ struct Column : ColumnBase {
         this->data.erase(this->data.begin() + entRow);
     }
 
-    ColumnBase* createClone() const {   /* Function to create an empty clone (used in creating another table) */
+    ColumnBase* createClone() const {   /* Function to create an empty clone (used when creating another table) */
         return new Column<T>();
     }
 
@@ -61,4 +61,14 @@ struct Record {
 
 struct TableRecord {
     uint32_t column;            /* Component column in the table */
+};
+
+static
+Table* createEmptyTable() {
+    Table *t = new Table();
+    t->id = 0;
+    t->type = {};
+    t->entities = {};
+    t->columns = {};
+    return t;
 };

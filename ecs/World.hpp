@@ -2,20 +2,20 @@
 #define WORLD_H
 
 #include <unordered_map>
+#include <iostream>
 
-#include "TableFunctions.cpp"
-#include "TypeFunctions.cpp"
-#include "Entity.h"
-#include "IdStorage.h"
+#include "Table.hpp"
+#include "Type.hpp"
+#include "IdStorage.hpp"
 
 using namespace std;
 
 using TableMap = unordered_map<TableId, TableRecord*>;
+namespace secs {
 
 struct World {
+public:
     World();
-
-    void initWorld();
 
     EntityId spawn();
 
@@ -24,6 +24,23 @@ struct World {
 
     template <typename T>
     T* getComponent(EntityId id);
+
+    //template <typename T>
+    //bool hasComponent(EntityId id);
+
+    //template <typename T>
+    //void removeComponent(EntityId id);
+
+    //template <typename... Ts>
+    //bool getEntitiesWith(EntityId id);
+
+    //template <typename T>
+    //bool getEntitiesWith(EntityId id);
+
+    void print();
+
+private:
+    void initWorld();
 
     Record* createRecord(EntityId entity, Table* table);
 
@@ -47,8 +64,6 @@ struct World {
 
     void rearrangeTableEntities(Table* table, const uint32_t idxStart);
 
-    void print();
-
     //void* getComponent(EntityId entity, ComponentId component);
     //void add(EntityId entity, ComponentId component);
 //
@@ -64,7 +79,10 @@ struct World {
     unordered_map<ComponentId, TableMap*> component_index;
 
     EntityIdIndex *entityIdIndex;
+
     ComponentIdIndex *componentIdIndex;
 };
+
+} // secs
 
 #endif

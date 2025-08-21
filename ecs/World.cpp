@@ -1,4 +1,6 @@
-#include "World.h"
+#include "World.hpp"
+
+namespace secs {
 
 World::World() 
     : entity_index(NULL)
@@ -98,7 +100,7 @@ void World::addComponent(EntityId id, T t) {
     newTable->entities.emplace_back(id);
 }
 
-void World::rearrangeTableEntities(Table* table, const uint32_t idxStart) {
+void World::rearrangeTableEntities(Table* table, const uint32_t idxStart) { // This can be moved to Table.h file
     for (uint32_t i = idxStart; i < table->entities.size(); i++) { // Check if there is a better way to do this
         EntityId id = table->entities.at(i);
         Record* entRec = this->entity_index.at(id);
@@ -106,6 +108,7 @@ void World::rearrangeTableEntities(Table* table, const uint32_t idxStart) {
     }
 }
 
+// This can be moved to Table.h file, dont forget to add the World* parameter
 void World::moveTableComponents(const EntityId eId, const uint32_t entRow, Table* oldTable, Table* newTable) {
     for (ComponentId cId : oldTable->type) {
         // get component index on the table
@@ -254,3 +257,5 @@ void World::print() {
 //    }
 //    // search archetype_index with new type (old type + new component) maybe
 //}
+
+} // secs

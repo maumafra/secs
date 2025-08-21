@@ -1,18 +1,15 @@
-#include "definitions.h"
-#include "datastructures/hash.h"
+#include "Definitions.hpp"
+#include "Hash.hpp"
 
 #include <algorithm>
-#include <iostream>
 
-static
-uint64_t typeHash(const Type type) {
+static inline TypeHash typeHash(const Type type) {
     const void* ids = static_cast<const void*>(type.data());
     int32_t count = (int32_t)type.size();
     return ecs_hash(ids, count * ((uint32_t)sizeof(ecsId)));
 };
 
-static
-Type getNewType(const Type oldType, ComponentId newId) {
+static inline Type getNewType(const Type oldType, ComponentId newId) {
     Type new_ids (oldType);
     new_ids.emplace_back(newId);
     std::sort(new_ids.begin(), new_ids.end());

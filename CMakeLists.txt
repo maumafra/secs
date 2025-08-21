@@ -10,16 +10,14 @@ include_directories(
 )
 
 add_library(ecs_module STATIC
-    ecs/datastructures/hash.h
-    ecs/definitions.h
-    ecs/Entity.h
+    ecs/Hash.hpp
+    ecs/Definitions.hpp
     ecs/IdStorage.cpp
-    ecs/IdStorage.h
-    ecs/Table.h
-    ecs/TableFunctions.cpp
-    ecs/TypeFunctions.cpp
+    ecs/IdStorage.hpp
+    ecs/Table.hpp
+    ecs/Type.hpp
     ecs/World.cpp
-    ecs/World.h
+    ecs/World.hpp
 )
 
 target_link_directories(ecs_module PUBLIC ecs/)

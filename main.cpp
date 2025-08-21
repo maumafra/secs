@@ -2,40 +2,76 @@
 
 #include <iostream>
 
-struct Pos {
-    float x, y;
+struct Health {
+    float hp;
 };
 
-struct Velocity {
-    int x;
+struct Armor {
+    int armor;
 };
+
+struct AttackDamage {
+    int attackDmg;
+    int armorPenetration;
+};
+
+struct MagicDamage {
+    int magicDmg;
+};
+
+struct Healing {
+    int healPoints;
+};
+
+struct GuildMember {}; // Tag component
+struct Enemy {}; // Tag component
 
 int main() {
-    World ecs;
-    auto e = ecs.spawn();
-    auto e2 = ecs.spawn();
+    secs::World ecs;
 
-    ecs.addComponent(e, Pos {1.0f, 2.0f});
-    ecs.addComponent(e, Velocity {3});
+    auto knigth = ecs.spawn();
+    ecs.addComponent(knigth, Health {100.0f});
+    ecs.addComponent(knigth, Armor {150});
+    ecs.addComponent(knigth, AttackDamage{50, 20});
+    ecs.addComponent(knigth, GuildMember{});
 
-    ecs.addComponent(e2, Velocity {5});
-    ecs.addComponent(e2, Pos {-2.0f, -4.0f});
+    
+    auto rogue = ecs.spawn();
+    ecs.addComponent(rogue, Health {60.0f});
+    ecs.addComponent(rogue, Armor {30});
+    ecs.addComponent(rogue, AttackDamage{100, 50});
+    ecs.addComponent(rogue, GuildMember{});
 
-    auto e3 = ecs.spawn();
-    ecs.addComponent(e3, Velocity {10});
+    auto cleric = ecs.spawn();
+    ecs.addComponent(cleric, Health {75.0f});
+    ecs.addComponent(cleric, Armor {100});
+    ecs.addComponent(cleric, MagicDamage{30});
+    ecs.addComponent(cleric, Healing{50});
+    ecs.addComponent(cleric, GuildMember{});
 
-    Velocity *vel = ecs.getComponent<Velocity>(e3);
-    vel->x = 40;
+    auto wizard = ecs.spawn();
+    ecs.addComponent(wizard, Health {55.0f});
+    ecs.addComponent(wizard, Armor {20});
+    ecs.addComponent(wizard, MagicDamage{200});
+    ecs.addComponent(wizard, GuildMember{});
 
-    vel = ecs.getComponent<Velocity>(e);
-    std::cout <<  "Entity " << e << " - Velocity: " << vel->x << std::endl; // Entity 0 - Velocity: 3
+    auto dragon = ecs.spawn();
+    ecs.addComponent(dragon, Health {2000.0f});
+    ecs.addComponent(dragon, Armor {400});
+    ecs.addComponent(dragon, AttackDamage{50, 20});
+    ecs.addComponent(dragon, Enemy{});
 
-    vel = ecs.getComponent<Velocity>(e2);
-    std::cout <<  "Entity " << e2 << " - Velocity: " << vel->x << std::endl; // Entity 1 - Velocity: 5
+    bool dragonLives = true;
+    bool guildLives = true;
 
-    vel = ecs.getComponent<Velocity>(e3);
-    std::cout <<  "Entity " << e3 << " - Velocity: " << vel->x << std::endl; // Entity 4 - Velocity: 40
-
-    //ecs.print(); DEBUG purposes
+    while(dragonLives && guildLives) {
+        //dragonAttacks
+        //guildLives = isGuildAlive
+        //guildAttacks
+        //dragonLives = isDragonAlive
+        //guildHeals
+        dragonLives = false;
+    }
+    ecs.print(); // DEBUG purposes
     return 0;
 }
