@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Definitions.hpp"
 
 #include <unordered_map>
@@ -11,7 +13,7 @@ struct EntityIdIndex {
 };
 
 struct ComponentIdIndex {
-    ComponentId nextId = 1;
+    ComponentId nextId = 1; //lazy way to check if a component exists, since no component will be registered with an id of 0
     std::unordered_map<std::string, ComponentId> typeIdIndex;
 };
 
@@ -30,6 +32,25 @@ inline ComponentId getComponentId(ComponentIdIndex *index) {
     return index->typeIdIndex[std::string(typeid(T).name())];
 };
 
-EntityId getNewId(EntityIdIndex *index);
+EntityId getNewId(EntityIdIndex *index) {
+    if (index->unalivedIds.size() != 0) {
+        /* Use unalived id */
+        EntityId id = *index->unalivedIds.begin();
+        index->unalivedIds.erase(index->unalivedIds.begin());
+        return id;
+    }
 
-void setIdUnalived(EntityIdIndex *index, EntityId id);
+    EntityId id = index->nextId ++;
+    return id;
+};
+
+void setIdUnalived(EntityIdIndex *index, EntityId id) {
+    index->unalivedIds.insert(id);
+};
+
+bool isIdUnalived(EntityIdIndex *index, EntityId id) {
+    if (*index->unalivedIds.end() == id) {
+        return true;
+    }
+    return *index->unalivedIds.find(id) == id;
+};

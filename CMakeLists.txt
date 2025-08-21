@@ -9,18 +9,15 @@ include_directories(
     ecs/
 )
 
-add_library(ecs_module STATIC
+add_library(ecs_module INTERFACE)
+target_link_directories(ecs_module INTERFACE 
     ecs/Hash.hpp
     ecs/Definitions.hpp
-    ecs/IdStorage.cpp
     ecs/IdStorage.hpp
     ecs/Table.hpp
     ecs/Type.hpp
-    ecs/World.cpp
     ecs/World.hpp
 )
-
-target_link_directories(ecs_module PUBLIC ecs/)
 
 add_executable(ecs)
 target_sources(ecs PRIVATE main.cpp)
