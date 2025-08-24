@@ -12,6 +12,29 @@ struct EntityIdIndex {
     std::set<EntityId> unalivedIds;
 };
 
+inline EntityId getNewId(EntityIdIndex *index) {
+    if (index->unalivedIds.size() != 0) {
+        /* Use unalived id */
+        EntityId id = *index->unalivedIds.begin();
+        index->unalivedIds.erase(index->unalivedIds.begin());
+        return id;
+    }
+
+    EntityId id = index->nextId ++;
+    return id;
+};
+
+inline void setIdUnalived(EntityIdIndex *index, EntityId id) {
+    index->unalivedIds.insert(id);
+};
+
+inline bool isIdUnalived(EntityIdIndex *index, EntityId id) {
+    if (*index->unalivedIds.end() == id) {
+        return true;
+    }
+    return *index->unalivedIds.find(id) == id;
+};
+
 struct ComponentIdIndex {
     ComponentId nextId = 1; //lazy way to check if a component exists, since no component will be registered with an id of 0
     std::unordered_map<std::string, ComponentId> typeIdIndex;
@@ -32,25 +55,21 @@ inline ComponentId getComponentId(ComponentIdIndex *index) {
     return index->typeIdIndex[std::string(typeid(T).name())];
 };
 
-EntityId getNewId(EntityIdIndex *index) {
-    if (index->unalivedIds.size() != 0) {
-        /* Use unalived id */
-        EntityId id = *index->unalivedIds.begin();
-        index->unalivedIds.erase(index->unalivedIds.begin());
-        return id;
-    }
+struct TableIdIndex {
+    TableId nextId;
+    std::unordered_map<TypeHash, TableId> typeHashIndex;
+};
 
-    EntityId id = index->nextId ++;
+inline TableId getNewId(TableIdIndex *index, TypeHash th) {
+    TableId id = index->nextId ++;
+    index->typeHashIndex.insert({th, id});
     return id;
 };
 
-void setIdUnalived(EntityIdIndex *index, EntityId id) {
-    index->unalivedIds.insert(id);
+inline TableId getId(TableIdIndex *index, TypeHash th) {
+    return index->typeHashIndex.at(th);
 };
 
-bool isIdUnalived(EntityIdIndex *index, EntityId id) {
-    if (*index->unalivedIds.end() == id) {
-        return true;
-    }
-    return *index->unalivedIds.find(id) == id;
+inline bool hasId(TableIdIndex *index, TypeHash th) {
+    return index->typeHashIndex.count(th) != 0;
 };

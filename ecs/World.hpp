@@ -60,11 +60,7 @@ public:
         Table *oldTable = r->table;
         Type oldType = oldTable->type;
         Type newType = getNewType(oldType, c_id);
-        Table* newTable = getTable(newType);
-        if (!newTable) {
-            newTable = this->createTable(newType, oldTable);
-            this->saveTable(newType, newTable);
-        }
+        Table* newTable = ensureTable(newType);
         this->moveTableComponents(id, ent_index, oldTable, newTable);
         oldTable->entities.erase(oldTable->entities.begin() + ent_index); // Check
         this->rearrangeTableEntities(oldTable, ent_index);
@@ -121,11 +117,14 @@ public:
     //template <typename T>
     //void removeComponent(EntityId id);
 
-    //template <typename... Ts>
-    //bool getEntitiesWith(EntityId id);
+    template <typename T, typename... Ts>
+    const std::vector<EntityId> getEntitiesWith() const {
+        if constexpr (sizeof...(Ts) == 0) {
+            return getEntitiesWithOne<T>();
+        }
+        return getEntitiesWithMultiple<T, Ts...>();
+    }
 
-    //template <typename T>
-    //bool getEntitiesWith(EntityId id);
 
     void print() {
         std::cout << "---- ENTITY INDEX ----" << std::endl;
@@ -136,7 +135,7 @@ public:
         std::cout << "---- TABLE INDEX ----" << std::endl;
         for (auto const &tabPair : this->table_index) {
             std::cout << "Table: " << tabPair.second->id << "\n";
-            std::cout << "      > Hash: " << tabPair.first << "\n";
+            //std::cout << "      > Hash: " << tabPair.first << "\n";
             std::cout << "      > Entities (" << tabPair.second->entities.size() << "): ";
             for (EntityId entId : tabPair.second->entities) {
                 std::cout << entId << " ";
@@ -154,8 +153,8 @@ private:
     void initWorld() {
         entityIdIndex = new EntityIdIndex();
         componentIdIndex = new ComponentIdIndex();
-        Table* emptyTable = createEmptyTable();
-        this->saveTable({}, emptyTable);
+        tableIdIndex = new TableIdIndex();
+        ensureTable({}); // Create first (empty) table
     }
 
     Record* createRecord(EntityId entity, Table* table) {
@@ -167,42 +166,43 @@ private:
         return r;
     }
 
-    Table* getTable(const Type type) {
+    //Table* getTable(const Type type) {
+    //    TypeHash th = 0;
+    //    if (type.size() != 0) {
+    //        th = typeHash(type);
+    //    }
+    //    if (hasId(tableIdIndex, th)) {
+    //        return table_index[getId(tableIdIndex, th)];
+    //    }
+    //    return nullptr;
+    //}
+
+    Table* ensureTable(const Type type) {
         TypeHash th = 0;
         if (type.size() != 0) {
             th = typeHash(type);
         }
-        if (this->table_index.count(th) == 0) {
-            return nullptr;
+        if (hasId(tableIdIndex, th)) {
+            return table_index[getId(tableIdIndex, th)];
         }
-        Table *t = this->table_index[th];
-        return t;
-    }
-
-    Table* createTable(const Type type, Table* oldTable) {
+        // there is no table for this type, so we create it
         Table *t = new Table();
-        t->id = getNewId(this->entityIdIndex); //TODO: Work on this later
+        t->id = getNewId(tableIdIndex, th);
         t->type = type;
         t->columns = {};
+        // save the table on table_index
+        table_index.insert({t->id, t});
         return t;
-    }
-
-    void saveTable(const Type type, Table* table) {
-        TypeHash th = 0;
-        if (type.size() != 0) {
-            th = typeHash(type);
-        }
-        table_index.insert({th, table});
     }
 
     bool hasComponent(EntityId entity, ComponentId component) {
-        Record *record = entity_index[entity];
-        Table *table = record->table;
         if (component_index.count(component) == 0) {
             return false;
         }
-        TableMap *archetypeMap = component_index[component];
-        return archetypeMap->count(table->id) != 0;
+        Record *record = entity_index[entity];
+        Table *table = record->table;
+        TableMap *tableMap = component_index[component];
+        return tableMap->count(table->id) != 0;
     }
 
     // This can be moved to Table.h file, dont forget to add the World* parameter
@@ -259,8 +259,63 @@ private:
         }
     }
 
-    //void* getComponent(EntityId entity, ComponentId component);
-    //void add(EntityId entity, ComponentId component);
+    template <typename T>
+    const std::vector<EntityId> getEntitiesWithOne() const {
+        std::vector<EntityId> returnVec {};
+        ComponentId c_id = getComponentId<T>(this->componentIdIndex);
+        if(!c_id) { // Component not yet registered
+            return returnVec;
+        }
+        TableMap tabMap = *this->component_index.at(c_id);
+        for (auto tableInfo : tabMap) {
+            Table* table = this->table_index.at(tableInfo.first);
+            returnVec.insert(returnVec.end(), table->entities.begin(), table->entities.end());
+        }
+        return returnVec;
+    }
+
+    template <typename T>
+    TableMap* getComponentTableMap() const {
+        ComponentId c_id = getComponentId<T>(this->componentIdIndex);
+        if(!c_id) { // Component not yet registered
+            return nullptr;
+        }
+        return this->component_index.at(c_id);
+    }
+
+    template <typename T>
+    void tableHasComponent(TableId id, bool* check) const {
+        TableMap* tabMap = this->getComponentTableMap<T>();
+        if (!tabMap) {
+            *check = *check && false;
+            return;
+        }
+        *check = *check && tabMap->count(id) != 0;
+    }
+
+    template <typename T, typename... Ts>
+    const std::vector<EntityId> getEntitiesWithMultiple() const {
+        TableMap* tabMap = this->getComponentTableMap<T>();
+        if (!tabMap) { // In case the first component is not registered, we return an empty vec
+            return {};
+        }
+        // If the first component is registered, continue
+        bool checkTables = true;
+        std::vector<EntityId> returnVec {};
+        for (const auto& tabMapPair : *tabMap) {
+            // tabMapPair.first = TableId
+            // "looping" through a parameter pack
+            (this->tableHasComponent<Ts>(tabMapPair.first, &checkTables), ...);
+            if (!checkTables) {
+                continue;
+            }
+            Table* table = this->table_index.at(tabMapPair.first);
+            for (EntityId id : table->entities) {
+                returnVec.emplace_back(id);
+            }
+        }
+        return returnVec;
+    }
 
     //void addEdges(Table& Table, ComponentId component);
 
@@ -268,7 +323,7 @@ private:
     unordered_map<EntityId, Record*> entity_index;
 
     // finds the Table by its list of components
-    unordered_map<TypeHash, Table*> table_index;
+    unordered_map<TableId, Table*> table_index;
 
     // finds the archetypes that has the component
     unordered_map<ComponentId, TableMap*> component_index;
@@ -276,6 +331,8 @@ private:
     EntityIdIndex *entityIdIndex;
 
     ComponentIdIndex *componentIdIndex;
+
+    TableIdIndex *tableIdIndex;
 };
 
 } // secs

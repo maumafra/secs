@@ -64,13 +64,3 @@ struct Record {
 struct TableRecord {
     uint32_t column;            /* Component column in the table */
 };
-
-static
-Table* createEmptyTable() {
-    Table *t = new Table();
-    t->id = 0;
-    t->type = {};
-    t->entities = {};
-    t->columns = {};
-    return t;
-};
