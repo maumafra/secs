@@ -1,7 +1,7 @@
 # Mau makes SECS (W.I.P.)
 This is a Simple Entity Component System project written in C++. 👻
 
-It is still in development. 😉
+This should be enough for an ECS Application. But if somehow you find any bugs, feel free to open a Pull Request. 😉
 
 ## ECS Knowledge
 I'm new to ECS and C++, so I've been studying a lot.
@@ -15,6 +15,42 @@ The study materials that I use are listed below:
 - https://github.com/zenialexandre/lotus
 - https://github.com/bevyengine/bevy
 - https://github.com/skypjack/entt
+
+## Example
+There is a full application on main.cpp file, so feel free to check it out.
+
+A simple example is shown below:
+```c++
+#include "World.hpp"
+
+struct Pos {
+    int x, y;
+}
+
+struct Vel {
+    int x, y;
+}
+
+int main() {
+    secs::World ecs;
+
+    auto entity = ecs.spawn();
+    ecs.addComponent(entity, Pos{0, 0});
+    ecs.addComponent(entity, Vel{0, 1});
+
+    auto entity2 = ecs.spawn();
+    ecs.addComponent(entity2, Pos{0, 0});
+    ecs.addComponent(entity2, Vel{1, 0});
+
+    for (auto ent : ecs.getEntitiesWith<Pos, Vel>()) {
+        Pos* pos = ecs.getComponent<Pos>(ent);
+        Vel* vel = ecs.getComponent<Vel>(ent);
+        pos->x += vel->x;
+        pos->y += vel->y;
+    }
+    return 0;
+}
+```
 
 ## Build
 This project uses CMake, so ideally you should have it installed.
