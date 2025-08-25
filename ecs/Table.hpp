@@ -31,7 +31,7 @@ struct Column : ColumnBase {
     }
 
     void debug() const {
-        std::cout << "This is a Column from type: " << typeid(T).name() << std::endl;
+        std::cout << typeid(T).name();
     }
 };
 
