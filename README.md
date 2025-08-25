@@ -1,4 +1,4 @@
-# Mau makes SECS (W.I.P.)
+# Mau makes SECS
 This is a Simple Entity Component System project written in C++. 👻
 
 This should be enough for an ECS Application. But if somehow you find any bugs, feel free to open a Pull Request. 😉
