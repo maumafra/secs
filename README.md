@@ -25,11 +25,11 @@ A simple example is shown below:
 
 struct Pos {
     int x, y;
-}
+};
 
 struct Vel {
     int x, y;
-}
+};
 
 int main() {
     secs::World ecs;
